@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>多语言翻译润色工具</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="container mt-5">
+    <h2 class="text-center mb-4">AI多语言翻译润色工具（智谱免费API）</h2>
+    <div class="row">
+        <div class="col-md-6">
+            <h5>输入原文</h5>
+            <textarea id="inputText" class="form-control" rows="6" placeholder="粘贴需要翻译/润色的文字"></textarea>
+
+            <div class="mt-3 row">
+                <div class="col">
+                    <label>源语言</label>
+                    <select id="sourceLang" class="form-select">
+                        <option>中文</option>
+                        <option>英语</option>
+                        <option>日语</option>
+                        <option>韩语</option>
+                    </select>
+                </div>
+                <div class="col">
+                    <label>目标语言</label>
+                    <select id="targetLang" class="form-select">
+                        <option>中文</option>
+                        <option>英语</option>
+                        <option>日语</option>
+                        <option>韩语</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="mt-3">
+                <label>润色模式</label>
+                <select id="polishMode" class="form-select">
+                    <option>标准翻译</option>
+                    <option>学术润色</option>
+                    <option>口语简化</option>
+                    <option>精简压缩</option>
+                </select>
+            </div>
+
+            <button onclick="sendTranslate()" class="btn btn-primary w-100 mt-3">开始翻译润色</button>
+        </div>
+
+        <div class="col-md-6">
+            <h5>输出结果</h5>
+            <div id="resultBox" class="border p-3" style="min-height:320px;white-space:pre-wrap;"></div>
+            <button onclick="clearAll()" class="btn btn-secondary w-100 mt-3">清空全部</button>
+        </div>
+    </div>
+
+    <script>
+        // 新版带加载提示、空文本判断的翻译函数
+        async function sendTranslate(){
+            const text = document.getElementById("inputText").value;
+            // 判断输入框为空，直接提示，不发起请求
+            if (!text.trim()) {
+                document.getElementById("resultBox").innerText = "请输入需要翻译的文本！";
+                return;
+            }
+            // 点击按钮立刻显示加载提示，解决等待卡顿错觉
+            document.getElementById("resultBox").innerText = "大模型翻译处理中，请稍候（免费接口高峰期较慢）...";
+            const src = document.getElementById("sourceLang").value;
+            const dst = document.getElementById("targetLang").value;
+            const mode = document.getElementById("polishMode").value;
+            const res = await fetch("/translate",{
+                method:"POST",
+                headers:{"Content-Type":"application/json"},
+                body:JSON.stringify({text,source:src,target:dst,mode})
+            })
+            const data = await res.json();
+            document.getElementById("resultBox").innerText = data.result;
+        }
+        // 清空按钮函数不变
+        function clearAll(){
+            document.getElementById("inputText").value = "";
+            document.getElementById("resultBox").innerText = "";
+        }
+    </script>
+</body>
+</html>
